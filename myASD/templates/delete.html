@@ -1,0 +1,33 @@
+
+
+{% block content %}
+    <!-- Your existing HTML content here -->
+
+    <script>
+        function deleteSubmission(submissionId) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                // Perform AJAX request to delete submission with submissionId
+                var formData = new FormData();
+                formData.append('submission_id', submissionId);
+
+                fetch('/delete_submission/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // Include CSRF token if you're using it
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    // Reload the page or update the UI as needed
+                    location.reload(); // Example: reload the page after deletion
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle errors if any
+                });
+            }
+        }
+    </script>
+{% endblock %}

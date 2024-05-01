@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 80px auto 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .navbar {
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-family: 'Oswald', sans-serif;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        .navbar-toggler {
+            color: #fff;
+            border: none;
+        }
+        .navbar-toggler:focus {
+            outline: none;
+        }
+        .navbar-nav {
+            padding: 10px 20px;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #555;
+        }
+        footer {
+            background-color: #333;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .team-member {
+            background-color: #f7f7f7;
+            padding: 10px;
+            margin-bottom: 20px;
+
+            width: calc(30% - 20px); /* Adjust width to fit three boxes per row with margin */
+            display: inline-block; /* Display as inline-block to fit multiple boxes in one row */
+            margin-right: 20px;
+            vertical-align: top; /* Align boxes to the top */
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            border-radius: 10px;
+
+        }
+        /* Clearfix to prevent wrapping issues */
+        .container::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .about-section {
+            background-color: #f7f7f7;
+            padding: 20px;
+            margin-bottom: 20px;
+
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            border-radius: 10px;
+        }
+        .meet-the-team {
+            background-color: #f7f7f7;
+            margin-bottom:35px;
+            margin-top: 35px;
+            font-size: 28px;
+
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Date Warner</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                    {% if user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                    {% else %}
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    {% endif %}
+                </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Submit a Report</a>
+            </li>
+
+            <li class="nav-item">
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'my_reviews' %}">My Reviews</a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'about_us' %}">About Us</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="about-section">
+        <h2>About Us</h2>
+        <p>At DateWarner, we understand that the world of online dating can be both exciting and challenging. While many experiences are positive, unfortunately, some encounters can be less than ideal. That's why we've created a platform where users can report their experiences with individuals they've met on dating apps.</p>
+        <p>Our mission is to provide a safe and supportive space for individuals to share their stories so we can take care of people who are potentially harmful or cause uncomfortable situations. By sharing your experiences, you can help others navigate the online dating world more confidently.</p>
+        <p>Whether it's a disrespectful or inappropriate behavior, a concerning encounter, or any other negative experience, your report can make a difference. We take reports seriously and strive to maintain a respectful and inclusive community.</p>
+        <p>At DateWarner, we believe we can create a safer and more enjoyable online dating experience for everyone.</p>
+        <p>Thank you for being a part of our community!</p>
+    </div>
+
+    <div class="meet-the-team">Meet the Team</div>
+
+    <!-- Team Members -->
+    <div class="team-member">
+        <h3>Kelsey Walsh</h3>
+        <p>Scrum Master</p>
+        <p>Contact info: bdw5xd@virginia.edu</p>
+    </div>
+
+    <div class="team-member">
+        <h3>Shivam Patel</h3>
+        <p>DevOps Manager</p>
+        <p>Contact Info: jjc8xs@virginia.edu</p>
+    </div>
+
+    <div class="team-member">
+        <h3>Ivan Zheng</h3>
+        <p>Software Architect</p>
+        <p>Contact Info: uup2rt@virginia.edu</p>
+    </div>
+
+    <div class="team-member">
+        <h3>Ashwin Johri</h3>
+        <p>Requirements Manager</p>
+        <p>Contact Info: sct5sz@virginia.edu</p>
+    </div>
+
+    <div class="team-member">
+        <h3>Hana Wang</h3>
+        <p>Testing Manager</p>
+        <p>Contact Info: muf5cb@virginia.edu</p>
+    </div>
+</div>
+
+<footer>
+    This website is for the purposes of a class project only. The website is not monitored and no real information should be submitted.
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the navbar */
+        .navbar {
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-family: 'Oswald', sans-serif;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        .navbar-toggler {
+            color: #fff;
+            border: none;
+        }
+        .navbar-toggler:focus {
+            outline: none;
+        }
+        .navbar-nav {
+            padding: 10px 20px;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #555;
+        }
+
+        /* Make the navbar sticky at the top */
+        body {
+            padding-top: 56px;
+            padding-bottom: 40px;/* Adjust according to the height of your navbar */
+        }
+
+        @media (min-width: 992px) {
+            body {
+                padding-top: 72px; /* Adjust for larger screens if necessary */
+            }
+        }
+        footer {
+            background-color: #333;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+
+    </style>
+</head>
+{% load custom_filters %}
+<body>
+
+<!-- Navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Date Warner - Admin Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                </li>
+
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_page' %}">All Reviews</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+<div class="container mt-5">
+    <h1>Submissions</h1>
+    <form id="filterForm" action="" method="get">
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="status">Status:</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="resolved"{% if request.GET.status == 'resolved' %} selected{% endif %}>Resolved</option>
+                    <option value="in_progress"{% if request.GET.status == 'in_progress' %} selected{% endif %}>In Progress</option>
+                    <option value="new"{% if request.GET.status == 'new' %} selected{% endif %}>New</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="platform">Dating Platform:</label>
+                <select id="dating_platform" name="dating_platform" class="form-control">
+                    <option value="">All</option>
+                    <option value="bumble"{% if request.GET.platform == 'bumble' %} selected{% endif %}>Bumble</option>
+                    <option value="hinge"{% if request.GET.platform == 'hinge' %} selected{% endif %}>Hinge</option>
+                    <option value="tinder"{% if request.GET.platform == 'tinder' %} selected{% endif %}>Tinder</option>
+                    <option value="other"{% if request.GET.platform == 'other' %} selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="reported_username">Reported Username:</label>
+                <input type="text" id="reported_username" name="reported_username" class="form-control" value="{{ request.GET.reported_username|default_if_none:'' }}" placeholder="Reported Username">
+            </div>
+            <div class="form-group col-md-3">
+                <label for="reporter_username">Reporter Username:</label>
+                <input type="text" id="reporter_username" name="reporter_username" class="form-control" value="{{ request.GET.reporter_username|default_if_none:'' }}" placeholder="Reporter Username">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+    </form>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Reporter Username</th>
+                <th>Reported Username</th>
+                <th>Dating Platform</th>
+                <th>Experience Rating</th>
+                <th>Situation Explanation</th>
+                <th>File Uploads</th>
+                <th>Status</th>
+                <th>Admin Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.reporter_username }}</td>
+                <td>{{ submission.reported_username }}</td>
+                <td>{{ submission.dating_platform }}</td>
+                <td>{{ submission.experience_rating }}</td>
+                <td>{{ submission.situation_explanation }}</td>
+                <td>
+                <td>
+                    {% if submission.get_uploaded_file_paths %}
+                    {{ submission.get_uploaded_file_paths|length }} files
+                    {% else %}
+                    No files uploaded
+                    {% endif %}
+                </td>
+                <td>{{ submission.status }}</td>
+                <td>{{ submission.admin_notes|truncatechars:50 }}</td>
+                <td>
+                    <form method="post" action="{% url 'admin_reviews_expanded' submission.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">View details</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<footer>
+        This website is for the purposes of a class project only. The website is not monitored and no real information should be submitted.
+    </footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#filterForm').submit(function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Construct the query string
+            var queryString = '?' + $(this).serialize();
+
+            // Redirect to the URL with applied filters
+            window.location.href = window.location.pathname + queryString;
+        });
+    });
+</script>
+
+</body>
+</html>

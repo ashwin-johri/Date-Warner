@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Details</title>
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            /*background-color: #f8f9fa;*/
+            color: #333;
+            padding-top: 70px; /* Adjusted to accommodate the navbar height */
+            padding-bottom: 50px;
+        }
+        .navbar {
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-family: 'Oswald', sans-serif;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        .navbar-toggler {
+            color: #fff;
+            border: none;
+        }
+        .navbar-toggler:focus {
+            outline: none;
+        }
+        .navbar-nav {
+            padding: 10px 20px;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #555;
+        }
+        .container {
+            max-width: 80%;
+            margin: auto;
+            padding: 20px;
+            /*background-color: #fff;*/
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .review-details {
+            margin-bottom: 20px;
+        }
+        .review-details h5 {
+            font-size: 18px;
+            color: #041a31;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .review-details p {
+            margin-top: 0;
+            font-size: 16px;
+        }
+        .uploaded-file {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .btn-back {
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+        .btn-update-review {
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+
+        }
+
+        .btn-update-review:hover {
+            background-color: #007bff; /* Darker green */
+
+        }
+        footer {
+            background-color: #333;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+{% load custom_filters %}
+
+<!-- Navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Date Warner - Admin Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                </li>
+
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_page' %}">All Reviews</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+<div class="container mt-5">
+    <form method="post" id="myForm">
+        {% csrf_token %}
+        <h1>Review Details</h1>
+        <div class="review-details">
+            <h5>Reporter Username:</h5>
+            <p>{{ submission.reporter_username }}</p>
+        </div>
+        <div class="review-details">
+            <h5>Reported Username:</h5>
+            <p>{{ submission.reported_username }}</p>
+        </div>
+        <div class="review-details">
+            <h5>Dating Platform:</h5>
+            <p>{{ submission.dating_platform }}</p>
+        </div>
+        <div class="review-details">
+            <h5>Experience Rating:</h5>
+            <p>{{ submission.experience_rating }}</p>
+        </div>
+        <div class="review-details">
+            <h5>Situation Explanation:</h5>
+            <p>{{ submission.situation_explanation }}</p>
+        </div>
+        <div class="review-details">
+            <h5>Uploaded Files:</h5>
+            {% if submission.get_uploaded_file_paths %}
+                <ul>
+                    {% for file_key in submission.get_uploaded_file_paths %}
+                        <li><a href="#" onclick="fetchPresignedUrl('{{ file_key }}'); return false;" target="_blank">
+                            {{ file_key|filename }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files uploaded.</p>
+            {% endif %}
+        </div>
+        <div class="review-details">
+            <h5>Status:</h5>
+                {% if submission.status == 'resolved' %}
+                    <p>{{ submission.status }}</p>
+                {% else %}
+                    <p>In Progress</p>
+                    <input type="hidden" name="status" value="in_progress">
+                {% endif %} 
+        </div>
+        <div class="review-details">
+            <h5>Admin Notes:</h5>
+            <input type="text" name="admin_notes" class="form-control" placeholder="Admin notes" value="{{ submission.admin_notes }}">
+        </div>
+        <!-- Add a hidden input field to set the new status -->
+        <input type="hidden" name="status" value="resolved">
+        <!-- Update the button class and name -->
+  
+        <button type="submit" class="btn btn-secondary btn-update-review" onclick="submitForm('resolve')">Resolve Review</button>
+    </form>
+   <!-- <a href="{% url 'admin_page' %}" class="btn btn-secondary btn-back">Back to All Reviews</a> -->
+    
+</div>
+<footer>
+        This website is for the purposes of a class project only. The website is not monitored and no real information should be submitted.
+    </footer>
+
+<!-- Bootstrap JS (optional) -->
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function submitForm(action) {
+        var form = document.getElementById('myForm');
+
+        // Set the URL for form submission based on the action
+        if (action === 'resolve') {
+            document.querySelector('input[name="status"]').value = 'resolved';
+            form.action = "{% url 'resolve_submission_status' submission.id %}";
+        } else if (action === 'update') {
+            form.action = "{% url 'update_submission_status' submission.id %}";
+        }
+
+        form.submit();
+    }
+</script>
+<script>
+    function fetchPresignedUrl(file_key) {
+        fetch(`/generate_presigned_url/?file_key=${encodeURIComponent(file_key)}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch URL');
+            return response.json();
+        })
+        .then(data => {
+            if (data.url) {
+                window.open(data.url, '_blank');
+            } else {
+                alert('Failed to retrieve file.');
+            }
+        })
+        .catch(error => console.error('Error fetching presigned URL:', error));
+    }
+    </script>
+</body>
+</html>

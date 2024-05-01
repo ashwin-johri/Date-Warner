@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Warner</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding-top: 70px;
+        }
+        .navbar {
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-family: 'Oswald', sans-serif;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        .navbar-toggler {
+            color: #fff;
+            border: none;
+        }
+        .navbar-toggler:focus {
+            outline: none;
+        }
+        .navbar-nav {
+            padding: 10px 20px;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #555;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        /* Adjustments for inline form */
+        .inline-form {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .inline-form .form-group {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .inline-form .form-group:last-child {
+            margin-right: 0;
+        }
+        .inline-form .btn-primary {
+            margin-top: 32px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        .button-container button {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        footer {
+            background-color: #333;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Date Warner</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Submit a Report</a>
+                </li>
+                <li class="nav-item">
+                    {% if user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'my_reviews' %}">My Reviews</a>
+                    {% endif %}
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about_us' %}">About Us</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>Welcome {{user.username}}</h1>
+        {% if notifications %}
+            <div>
+                <div class="list-group mb-3">
+                    {% for notification in notifications %}
+                        <a href="#" id="notification-{{ notification.id }}" class="list-group-item list-group-item-action flex-column align-items-start" onclick="markAsRead({{ notification.id }});">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ notification.verb }}</h5>
+                                <small>{{ notification.timestamp|date:"N j, Y, P" }}</small>
+                            </div>
+                            <p class="mb-1">{{ notification.description }}</p>
+                            <small>Click to mark as read.</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        <h2>Filter Submissions</h2>
+        <form id="filterForm" class="inline-form" method="get">
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="resolved"{% if request.GET.status == 'resolved' %} selected{% endif %}>Resolved</option>
+                    <option value="in_progress"{% if request.GET.status == 'in_progress' %} selected{% endif %}>In Progress</option>
+                    <option value="new"{% if request.GET.status == 'new' %} selected{% endif %}>New</option>
+                    {% for status in statuses %}
+                        <option value="{{ status }}">{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="platform">Dating Platform:</label>
+                <select id="platform" name="platform" class="form-control">
+                    <option value="">All</option>
+                    <option value="bumble"{% if request.GET.platform == 'bumble' %} selected{% endif %}>Bumble</option>
+                    <option value="hinge"{% if request.GET.platform == 'hinge' %} selected{% endif %}>Hinge</option>
+                    <option value="tinder"{% if request.GET.platform == 'tinder' %} selected{% endif %}>Tinder</option>
+                    <option value="other"{% if request.GET.platform == 'other' %} selected{% endif %}>Other</option>
+                    {% for platform in platforms %}
+                        <option value="{{ platform }}">{{ platform }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reported_username">Reported Username:</label>
+                <input type="text" id="reported_username" name="reported_username" class="form-control" value="{{ request.GET.reported_username|default_if_none:'' }}" placeholder="Reported Username">
+            </div>
+            <button type="button" id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
+        </form>
+        <h2>My Submissions</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Reporter Username</th>
+                    <th>Reported Username</th>
+                    <th>Dating Platform</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    {% if username_not_none %}
+                        {% if submission.reporter_username == user.username %}
+                            <tr>
+                                <td>{{ submission.reporter_username }}</td>
+                                <td>{{ submission.reported_username }}</td>
+                                <td>{{ submission.dating_platform }}</td>
+                                <td>{{ submission.status }}</td>
+                                <td class="button-cell">
+                                    <div class="button-container">
+                                        <button type="button" class="btn btn-primary btn-action" onclick="viewDetails('{{ submission.id }}')">View Details</button>
+                                        <form method="post" action="{% url 'delete_submission' submission.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-action delete-btn" name="delete_submission" value="{{ submission.id }}">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+      <footer>
+        This website is for the purposes of a class project only. The website is not monitored and no real information should be submitted.
+        </footer>
+
+     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+    <script>
+
+        function viewDetails(submissionId) {
+            console.log("View Details button clicked for submission ID:", submissionId);
+            // Assuming 'review_details' is the correct endpoint to view submission details
+            window.location.href = '/review_details/' + submissionId + '/';
+        }
+
+        function markAsRead(notificationId) {
+            fetch(`/mark-notification-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'), // Fetching CSRF token
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({'notification_id': notificationId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    console.log('Notification marked as read');
+                    // Optionally remove the notification from the DOM or update its appearance
+                    document.querySelector(`a[onclick='markAsRead(${notificationId})']`).style.display = 'none';
+                } else {
+                    console.log('Error marking notification as read');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+            document.getElementById(`notification-${notificationId}`).style.display = 'none';
+        }
+
+        // Function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            
+            applyFiltersBtn.addEventListener('click', function () {
+                var platform = document.getElementById('platform').value;
+                var status = document.getElementById('status').value;
+                var reportedUsername = document.getElementById('reported_username').value;
+
+                var queryString = '?';
+                if (platform) queryString += 'platform=' + platform + '&';
+                if (status) queryString += 'status=' + status + '&';
+                if (reportedUsername) queryString += 'reported_username=' + reportedUsername + '&';
+
+                queryString = queryString.slice(0, -1);
+
+                window.location.href = window.location.pathname + queryString;
+            });
+        });
+
+    </script>
+</body>
+</html>
